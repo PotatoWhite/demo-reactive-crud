@@ -6,6 +6,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.mutiny.core.Vertx;
 import io.vertx.mutiny.ext.web.client.WebClient;
+import lombok.extern.slf4j.Slf4j;
 import org.jboss.resteasy.annotations.jaxrs.PathParam;
 
 import javax.annotation.PostConstruct;
@@ -15,7 +16,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
+@Slf4j
 @Path("/fruits-data")
 public class ResourceUsingWebClient {
   @Inject
@@ -49,18 +53,22 @@ public class ResourceUsingWebClient {
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
+  public Object getFruits() {
+    return client.get("/fruits")
+                 .sendAndAwait()
+                 .body()
+                 .toString();
+
+  }
+
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
   @Path("/name/{name}")
-  public Uni<JsonObject> getFruitByName(@PathParam String name) {
-    return client.get("/fruits/name/"+name)
-                 .send()
-                 .map(res -> {
-                   if(res.statusCode() == Response.Status.OK.getStatusCode()) {
-                     return res.bodyAsJsonObject();
-                   } else {
-                     return new JsonObject().put("code", res.statusCode())
-                                            .put("message", res.bodyAsJsonObject());
-                   }
-                 });
+  public String getFruitByName(@PathParam("name") String name) throws UnsupportedEncodingException {
+    return client.get("/fruits/name/"+URLEncoder.encode(name, "UTF-8"))
+                 .sendAndAwait()
+                 .body()
+                 .toString();
   }
 
 }

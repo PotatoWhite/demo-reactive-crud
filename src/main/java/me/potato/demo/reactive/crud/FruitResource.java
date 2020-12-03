@@ -57,7 +57,7 @@ public class FruitResource {
   }
 
   @GET
-  @Path("name/{name}")
+  @Path("/name/{name}")
   public Multi<Fruit> getByName(@PathParam String name){
     return Fruit.findByName(client, name);
   }

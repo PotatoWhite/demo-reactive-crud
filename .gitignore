@@ -15,7 +15,7 @@ bin/
 *.iws
 
 # NetBeans
-nb-configuration.xml
+nb-configuration.xmlmulti
 
 # Visual Studio Code
 .vscode
