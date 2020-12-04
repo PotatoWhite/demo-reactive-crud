@@ -2,6 +2,7 @@ package me.potato.demo.reactive.client;
 
 
 import io.smallrye.mutiny.Uni;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.mutiny.core.Vertx;
@@ -53,22 +54,34 @@ public class ResourceUsingWebClient {
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public Object getFruits() {
+  public Uni<JsonArray> getFruits() {
     return client.get("/fruits")
-                 .sendAndAwait()
-                 .body()
-                 .toString();
+                 .send()
+                 .map(res -> {
+                   if(res.statusCode() == Response.Status.OK.getStatusCode())
+                     return res.bodyAsJsonArray();
+
+                   log.debug("no contents");
+                   return new JsonArray();
+
+                 });
 
   }
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/name/{name}")
-  public String getFruitByName(@PathParam("name") String name) throws UnsupportedEncodingException {
+  public Uni<JsonArray> getFruitByName(@PathParam("name") String name) throws UnsupportedEncodingException {
     return client.get("/fruits/name/"+URLEncoder.encode(name, "UTF-8"))
-                 .sendAndAwait()
-                 .body()
-                 .toString();
+                 .send()
+                 .map(res -> {
+                   if(res.statusCode() == Response.Status.OK.getStatusCode())
+                     return res.bodyAsJsonArray();
+
+                   log.debug("no contents");
+                   return new JsonArray();
+                 });
   }
+
 
 }
